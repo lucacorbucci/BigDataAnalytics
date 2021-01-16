@@ -1,4 +1,4 @@
-# Big Data Analytics Project
+# Big Data Analytics Project 🎓 👨🏻‍💻
 
 ## MaLuCS Team - Academic Year 2020-2021
 
