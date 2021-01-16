@@ -1,8 +1,3 @@
-# simple_streamlit_app.py
-"""
-A simple streamlit app
-"""
-
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -13,6 +8,7 @@ import shap
 import streamlit.components.v1 as components
 from sklearn.metrics import accuracy_score 
 
+# This method generates the title that is shown at the top of the page.
 def showTitle():
     st.markdown("<h1 style='text-align: center; color: black;'>Flu Shot Learning: Predict H1N1 and Seasonal Flu Vaccines</h1>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align: center; color: black;'>University of Pisa - Big Data Analytics Final Term - Academic Year 2020/21</h2>", unsafe_allow_html=True)
@@ -22,7 +18,7 @@ def showTitle():
     st.markdown("In this phase data will be cleaned and we will create two datasets, one for the prediction of the **seasonal** vaccine and one for the prediction of the **H1N1** vaccine.")
     st.markdown("The two dataset will be shown after a few seconds.")
 
-
+# This method is used to visualize the two datasets
 def showDatasets(seasonal, h1n1):
     st.markdown('### Seasonal Dataset')
     st.markdown(f"The seasonal dataset has {seasonal.shape[0]} rows and {seasonal.shape[1]} columns")
@@ -31,6 +27,7 @@ def showDatasets(seasonal, h1n1):
     st.markdown(f"The H1N1 dataset has {h1n1.shape[0]} rows and {h1n1.shape[1]} columns")
     st.write(h1n1)
 
+# This method is used to clean the uploaded dataset and to return the cleaned datasets
 def preProcess(uploaded_file):
     df = pd.read_csv(uploaded_file, sep=",")
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
@@ -38,6 +35,8 @@ def preProcess(uploaded_file):
     st.write(df)
     return df, seasonal, h1n1, labels_seasonal, labels_h1n1
 
+# This method is used to make the predictions both for the seasonal and the H1N1 dataset.
+# It also shows the accuracy for the predictions.
 def makePredictions(seasonal, h1n1, labels_seasonal, labels_h1n1):
     worker = Worker(seasonal, h1n1)
     predictions_seasonal, predictions_h1n1 = worker.makeAllPredictions(seasonal, h1n1)
@@ -58,27 +57,24 @@ def makePredictions(seasonal, h1n1, labels_seasonal, labels_h1n1):
     st.table(df_predictions)
     st.write(f"The accuracy for the seasonal prediction is {accuracy_seasonal}")
     st.write(f"The accuracy for the H1N1 prediction is {accuracy_h1n1}")
-    # Worker.confMatSeas(labels_seasonal, predictions_seasonal)
-    # Worker.confMatH1N1(labels_h1n1, predictions_h1n1)
     return df_predictions
 
+# This method is used to visualize the plot produced by shap in a scrollable div
 def st_shap(plot, height=None):
     shap_html = f"<head>{shap.getjs()}</head><div style='overflow-x:scroll;overflow-y:hidden;width:2500px;height:150px'>{plot.html()}</div>"
     components.html(shap_html, scrolling=True)
 
+# This method is used to visualize the plot produced by shap in a scrollable div
 def st_shap_other_plot(plot, height=None):
     shap_html = f"<head>{shap.getjs()}</head><div style='overflow-x:scroll;overflow-y:hidden;width:2500px;height:450px'>{plot.html()}</div>"
     components.html(shap_html, height=500, scrolling=True)
 
-
+# This method is used to generate the explanation of an instance using Shap
 def shap_explanation(seasonal, h1n1, selected_index, full_df):
     st.markdown("## Explanation with Shap")
     seasonal_noCod, h1n1_noCod, labels_seasonal, labels_h1n1 = PreProcessing.TestSetCleaningNoCod(full_df)
     worker = Worker(seasonal, h1n1)
 
-    # worker.save_expl_shap_h1n1()
-    # worker.save_expl_shap_seasonal()
-        
     st.markdown("### Seasonal Prediction Explanation with Shap")
     g1, g2 = Worker.shap_explain_seasonal(seasonal, seasonal_noCod, selected_index)
     st_shap(g1)
@@ -89,6 +85,7 @@ def shap_explanation(seasonal, h1n1, selected_index, full_df):
     st_shap(g1)
     st_shap_other_plot(g2)
 
+# This method is used to generate the explanation of an instance using Lime
 def lime_explanation(seasonal, h1n1, selected_index):
     worker = Worker(seasonal, h1n1)
     st.markdown("## Explanation with Lime")
@@ -100,6 +97,7 @@ def lime_explanation(seasonal, h1n1, selected_index):
     figure_h1n1 = worker.lime_explain_h1n1(h1n1, selected_index)
     st.pyplot(figure_h1n1)
 
+# This method is used to generate the explanation of an instance using Lore
 def lore_explanation(seasonal, h1n1, selected_index):
     seasonal_noCod, h1n1_noCod, labels_seasonal, labels_h1n1 = PreProcessing.TestSetCleaningNoCod(full_df)
     worker = Worker(seasonal_noCod, h1n1_noCod, True)
@@ -112,7 +110,7 @@ def lore_explanation(seasonal, h1n1, selected_index):
     explanation = worker.lore_explain_h1n1(h1n1_noCod, selected_index)
     st.write(explanation)
 
-    
+# This method is used to produce the explanation and to visualize them in the page
 def askExplanation(df_predictions, seasonal, h1n1, full_df):
     st.write('## Choose the instance you want to explain', df_predictions)
     selected_index = st.selectbox('Select a row:', df_predictions.index)
@@ -130,7 +128,9 @@ def askExplanation(df_predictions, seasonal, h1n1, full_df):
         lore_explanation(seasonal, h1n1, selected_index)
         shap_explanation(seasonal, h1n1, selected_index, full_df)
 
-
+'''
+    * *********************************************************************************** *
+'''
 showTitle()
 uploaded_file = st.file_uploader("Choose a file", type=['txt', 'csv'])
 
