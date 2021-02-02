@@ -40,8 +40,6 @@ Inside the Jupyter notebook you can find all the most important task of our proj
 
 In the second box into our notebook we import the sample dataset, you can substitute the name "./sample_data_txt.txt" with the name of your file.
 
-Our Notebook is also available here: http://62.171.188.29:5010. The password to access the notebook on our server is "MalucsTeam"
-
 ## Streamlit
 
 We developed a simple web app using Streamlit to visualize our work.
